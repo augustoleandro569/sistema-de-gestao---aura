@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Sistema de Gestão para Estética 3.0 - FOOD",
+  "description": "Ecossistema integrado de estética: Aura App (Marketplace & Descoberta estilo iFood), Aura Business (SaaS de Gestão, Agenda, Estoque e Precificação) e Aura Core (Governança e Monetização).",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

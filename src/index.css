@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  /* Luminous Luxury Identity */
+  --color-aura-pearl: #FDFCFB;
+  --color-aura-linen: #F9F7F5;
+  --color-aura-rose: #EAD7D1;
+  --color-aura-taupe: #B69D8E;
+  --color-aura-gold: #C5A059;
+  --color-aura-charcoal: #3A3A3A;
+  --color-aura-slate: #8E8E8E;
+  --color-aura-border: #F1EBE7;
+  --color-aura-carrara: #F4F4F2;
+
+  --shadow-luminous: 0 10px 40px -10px rgba(182, 157, 142, 0.15);
+  --shadow-soft-glow: 0 0 20px rgba(234, 215, 209, 0.4);
+
+  /* Legacy & Support Colors */
+  --color-aesthetic-off-white: #FDFCFB;
+  --color-aesthetic-bege: #F1EBE7;
+  --color-aesthetic-dark: #3A3A3A;
+  --color-aesthetic-rose: #EAD7D1;
+  --color-aesthetic-gold: #C5A059;
+  --color-aesthetic-nude: #F9F7F5;
+  --color-aesthetic-graphite: #3A3A3A;
+  --color-graphite: #3A3A3A;
+  --shadow-premium: 0 10px 40px -10px rgba(182, 157, 142, 0.15);
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: 'Playfair Display', Georgia, serif;
+  }
+  
+  body {
+    font-family: var(--font-sans);
+    background-color: #FDFCFB;
+    color: #3A3A3A;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F3EFEA;
+}
+::-webkit-scrollbar-thumb {
+  background: #D9CFC7;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C4B5A9;
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
