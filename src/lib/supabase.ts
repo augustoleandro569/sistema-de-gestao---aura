@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env ? (import.meta.env.VITE_SUPABASE_URL as string) : '') || '';
-const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env ? (import.meta.env.VITE_SUPABASE_ANON_KEY as string) : '') || '';
+const supabaseUrl =
+  (typeof import.meta !== 'undefined' && import.meta.env
+    ? (import.meta.env.VITE_SUPABASE_URL as string)
+    : '') || '';
+
+const supabaseAnonKey =
+  (typeof import.meta !== 'undefined' && import.meta.env
+    ? ((import.meta.env.VITE_SUPABASE_ANON_KEY ||
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) as string)
+    : '') || '';
 
 // Fallback in-memory/blob storage for preview environments before credentials are configured
 const localBlobMap = new Map<string, string>();
