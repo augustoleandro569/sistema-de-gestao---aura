@@ -1,5 +1,6 @@
 import React from 'react';
-import { ShoppingBag, Briefcase, Shield, Sparkles, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ShoppingBag, Briefcase, Shield, Sparkles, ChevronRight, LogOut } from 'lucide-react';
 import { useLayout, AuraPillar } from '../../layouts/LayoutContext';
 import { useAuth } from '../../context/AuthContext';
 import { useBusiness } from '../../core/BusinessContext';
@@ -11,12 +12,14 @@ interface EcosystemBarProps {
 
 export const EcosystemBar: React.FC<EcosystemBarProps> = ({ className = '', condensed = false }) => {
   const { activePillar, setActivePillar, currentTab } = useLayout();
-  const { userProfile, userRole } = useAuth();
+  const { userProfile, userRole, logout } = useAuth();
   const { currentBusiness } = useBusiness();
+  const navigate = useNavigate();
 
   const isPlatformAdmin =
     userProfile?.email?.toLowerCase() === 'dev@aura.com.br' ||
     userProfile?.email?.toLowerCase() === 'augusto.leandro569@gmail.com' ||
+    userProfile?.email?.toLowerCase() === 'augustoleandro569@gmail.com' ||
     userRole === 'PLATFORM_ADMIN' ||
     userRole === 'SUPER_ADMIN' ||
     !!userProfile?.is_root;
@@ -111,6 +114,22 @@ export const EcosystemBar: React.FC<EcosystemBarProps> = ({ className = '', cond
               </button>
             );
           })}
+
+          {isPlatformAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                setActivePillar('marketplace');
+                navigate('/');
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-300 hover:text-white hover:bg-rose-600/80 transition-all border border-rose-900/40 cursor-pointer ml-1"
+              title="Sair do Sistema (Logout)"
+            >
+              <LogOut size={13} />
+              <span className="hidden md:inline">Sair</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

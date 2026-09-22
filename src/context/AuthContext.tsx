@@ -228,12 +228,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const isEmail = raw.includes('@');
 
     // 0. GOD MODE: Autenticação Root da Plataforma (PLATFORM_ADMIN)
-    const rootEmails = ['dev@aura.com.br', 'augusto.leandro569@gmail.com'];
+    const rootEmails = [
+      'dev@aura.com.br',
+      'augustoleandro569@gmail.com',
+      'augusto.leandro569@gmail.com',
+      'admin@sublime.com',
+    ];
     if (isEmail && rootEmails.includes(raw.toLowerCase())) {
       const rootProfile: UserProfile = {
         id: 'prof-root-01',
-        name: 'Root Platform Dev (Engenheiro Chefe)',
-        full_name: 'Root Platform Dev (Engenheiro Chefe)',
+        name: 'Augusto Leandro (Root Platform Dev)',
+        full_name: 'Augusto Leandro (Engenheiro Chefe)',
         email: raw.toLowerCase(),
         phone: '(11) 99999-9999',
         whatsapp: '5511999999999',
@@ -349,8 +354,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setIsAuthenticated(false);
+    setUserProfile(null);
     try {
       localStorage.setItem(AUTH_STATE_KEY, 'false');
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('sublime_impersonate_biz');
     } catch (e) {
       console.error(e);
     }
@@ -513,6 +521,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         selectClientAsUser,
         resetUserToPending,
         login,
+        signInWithCredentials,
+        signUpWithCredentials,
         loginWithCpfOrEmail,
         registerWithCpf,
         loginWithGoogle,

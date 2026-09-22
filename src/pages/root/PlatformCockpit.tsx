@@ -1,5 +1,6 @@
 // src/pages/root/PlatformCockpit.tsx
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ShieldAlert,
   Building2,
@@ -8,6 +9,7 @@ import {
   Calendar,
   Search,
   LogIn,
+  LogOut,
   CheckCircle2,
   AlertTriangle,
   Sparkles,
@@ -120,8 +122,15 @@ export const PlatformCockpit: React.FC = () => {
     createBusiness,
   } = useBusiness();
 
-  const { userProfile } = useAuth();
+  const { userProfile, logout, signOut } = useAuth();
+  const navigate = useNavigate();
   const layout = useLayout();
+
+  const handleLogout = () => {
+    logout();
+    layout.setCurrentTab('portal');
+    navigate('/');
+  };
 
   // Estados de navegação interna do Cockpit
   const [activeTab, setActiveTab] = useState<'tenants' | 'users' | 'monetization' | 'logs'>('tenants');
@@ -400,6 +409,57 @@ export const PlatformCockpit: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] text-[#3A3A3A] p-4 sm:p-8 font-sans antialiased">
+      {/* BARRA SUPERIOR DO ENGENHEIRO / DEVELOPER ROOT */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#1A1D23] text-white border border-[#2B303B] shadow-soft-glow">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#C5A059] to-[#EAD7D1] p-0.5 flex items-center justify-center shadow-sm shrink-0">
+            <div className="w-full h-full bg-[#1A1D23] rounded-[10px] flex items-center justify-center">
+              <Shield className="w-5 h-5 text-[#C5A059]" />
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-bold text-white tracking-wide">
+                {userProfile?.name || 'Augusto Leandro'}
+              </span>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase tracking-widest">
+                Developer Mode • Root
+              </span>
+            </div>
+            <p className="text-[11px] text-zinc-400 font-mono">
+              {userProfile?.email || 'augustoleandro569@gmail.com'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              layout.setCurrentTab('marketplace');
+              navigate('/app/explorar');
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/15 text-zinc-200 transition-all border border-white/10 cursor-pointer"
+            title="Visualizar a experiência do Marketplace (Consumidor B2C)"
+          >
+            <Store size={14} className="text-[#C5A059]" />
+            <span className="hidden sm:inline">Aura App (B2C)</span>
+            <span className="sm:hidden">App</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            id="btn-developer-logout"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-md cursor-pointer border border-rose-500/60"
+            title="Encerrar sessão de desenvolvedor e voltar à tela inicial"
+          >
+            <LogOut size={14} />
+            <span>Sair do Sistema</span>
+          </button>
+        </div>
+      </div>
+
       {/* BANNER FEEDBACK TOAST */}
       {feedbackMessage && (
         <div className="fixed top-6 right-6 z-[10000] bg-[#3A3A3A] text-white px-5 py-3 rounded-2xl shadow-soft-glow text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 animate-in fade-in slide-in-from-top-4 duration-300 border border-[#C5A059]/40">

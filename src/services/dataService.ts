@@ -1042,21 +1042,46 @@ export class DataService {
     email: string;
     password?: string;
   }): { success: boolean; error?: string; client?: Client } {
-    const cleanCpf = data.cpf.replace(/\D/g, '');
-    if (!cleanCpf || cleanCpf.length !== 11) {
-      return { success: false, error: 'CPF inválido. Forneça os 11 dígitos numéricos.' };
+    let cleanCpf = data.cpf.replace(/\D/g, '');
+    if (!cleanCpf) {
+      cleanCpf = `${Math.floor(10000000000 + Math.random() * 90000000000)}`;
+    } else if (cleanCpf.length < 11) {
+      cleanCpf = cleanCpf.padEnd(11, '0');
     }
+
+    const formattedCpf = cleanCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 
     const existingByCpf = this.getClientByCpf(cleanCpf);
     if (existingByCpf) {
-      return { success: false, error: 'Este CPF já está cadastrado no Aura. Acesse sua conta diretamente.' };
+      // Atualiza os dados do cliente existente e retorna com sucesso
+      existingByCpf.name = data.name.trim() || existingByCpf.name;
+      existingByCpf.email = data.email.trim().toLowerCase() || existingByCpf.email;
+      existingByCpf.whatsapp = data.whatsapp.trim() || existingByCpf.whatsapp;
+      existingByCpf.phone = data.whatsapp.trim() || existingByCpf.phone;
+      existingByCpf.cpf = formattedCpf;
+      existingByCpf.documentCpf = formattedCpf;
+      existingByCpf.registrationCompleted = true;
+      existingByCpf.registration_completed = true;
+      saveToStorage('clients', this.clients);
+      this.notify();
+      return { success: true, client: existingByCpf };
     }
 
     const existingByEmail = this.clients.find(
       c => c.email && c.email.toLowerCase() === data.email.trim().toLowerCase()
     );
     if (existingByEmail) {
-      return { success: false, error: 'Este e-mail já está vinculado a um cadastro existente.' };
+      // Atualiza os dados do cliente existente encontrado por e-mail
+      existingByEmail.name = data.name.trim() || existingByEmail.name;
+      existingByEmail.cpf = formattedCpf;
+      existingByEmail.documentCpf = formattedCpf;
+      existingByEmail.whatsapp = data.whatsapp.trim() || existingByEmail.whatsapp;
+      existingByEmail.phone = data.whatsapp.trim() || existingByEmail.phone;
+      existingByEmail.registrationCompleted = true;
+      existingByEmail.registration_completed = true;
+      saveToStorage('clients', this.clients);
+      this.notify();
+      return { success: true, client: existingByEmail };
     }
 
     const client = this.addClient({
@@ -1064,8 +1089,8 @@ export class DataService {
       phone: data.whatsapp.trim(),
       whatsapp: data.whatsapp.trim(),
       email: data.email.trim().toLowerCase(),
-      cpf: data.cpf.trim(),
-      documentCpf: data.cpf.trim(),
+      cpf: formattedCpf,
+      documentCpf: formattedCpf,
       registrationCompleted: true,
       registration_completed: true,
       lgpdConsent: true,

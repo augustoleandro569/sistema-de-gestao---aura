@@ -60,6 +60,7 @@ export const Header: React.FC<HeaderProps> = ({
   const isPlatformAdmin =
     userProfile?.email?.toLowerCase() === 'dev@aura.com.br' ||
     userProfile?.email?.toLowerCase() === 'augusto.leandro569@gmail.com' ||
+    userProfile?.email?.toLowerCase() === 'augustoleandro569@gmail.com' ||
     currentAuthRole === 'PLATFORM_ADMIN' ||
     currentAuthRole === 'SUPER_ADMIN' ||
     !!userProfile?.is_root;

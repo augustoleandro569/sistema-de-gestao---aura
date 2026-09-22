@@ -72,7 +72,8 @@ export const ConsumerLayout: React.FC<ConsumerLayoutProps> = ({
   const isRootPlatformAdmin =
     userProfile?.role === 'PLATFORM_ADMIN' ||
     userProfile?.email?.toLowerCase() === 'dev@aura.com.br' ||
-    userProfile?.email?.toLowerCase() === 'augusto.leandro569@gmail.com';
+    userProfile?.email?.toLowerCase() === 'augusto.leandro569@gmail.com' ||
+    userProfile?.email?.toLowerCase() === 'augustoleandro569@gmail.com';
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] text-[#3A3A3A] flex flex-col font-sans">
