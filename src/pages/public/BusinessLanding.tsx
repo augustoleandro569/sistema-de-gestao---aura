@@ -88,9 +88,16 @@ export const BusinessLanding: React.FC<BusinessLandingProps> = ({
     'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=300&q=80';
 
   // 2. Verificação de Acesso ao Módulo Vitrine
+  const isPrivilegedUser =
+    userProfile?.role === 'PLATFORM_ADMIN' ||
+    userProfile?.role === 'ADMIN' ||
+    userProfile?.role === 'OWNER' ||
+    userProfile?.role === 'MANAGER' ||
+    userProfile?.email?.toLowerCase() === 'parceiro@aura.com.br' ||
+    isSuperAdminMode;
   const activeModules = businessModulesMap[business.id] || ['appointments', 'vitrine'];
-  const hasVitrineModule = activeModules.includes('vitrine') || isSuperAdminMode || userProfile?.role === 'PLATFORM_ADMIN';
-  const isSuspended = business.status === 'suspended' && userProfile?.role !== 'PLATFORM_ADMIN';
+  const hasVitrineModule = activeModules.includes('vitrine') || isPrivilegedUser;
+  const isSuspended = business.status === 'suspended' && !isPrivilegedUser;
 
   // 3. Integração com as Abas do SaaS (Serviços, Conteúdos/Portfólio, Unidades, Branding)
   // Aba Serviços: Espelho dos procedimentos cadastrados

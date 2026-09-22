@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Briefcase, Shield, Sparkles, ChevronRight, LogOut } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ShoppingBag, Briefcase, Shield, Sparkles, ChevronRight, LogOut, History } from 'lucide-react';
 import { useLayout, AuraPillar } from '../../layouts/LayoutContext';
 import { useAuth } from '../../context/AuthContext';
 import { useBusiness } from '../../core/BusinessContext';
@@ -15,14 +15,29 @@ export const EcosystemBar: React.FC<EcosystemBarProps> = ({ className = '', cond
   const { userProfile, userRole, logout } = useAuth();
   const { currentBusiness } = useBusiness();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isPlatformAdmin =
     userProfile?.email?.toLowerCase() === 'dev@aura.com.br' ||
     userProfile?.email?.toLowerCase() === 'augusto.leandro569@gmail.com' ||
     userProfile?.email?.toLowerCase() === 'augustoleandro569@gmail.com' ||
+    userProfile?.role === 'PLATFORM_ADMIN' ||
     userRole === 'PLATFORM_ADMIN' ||
     userRole === 'SUPER_ADMIN' ||
     !!userProfile?.is_root;
+
+  const isAuditoriaActive = location.pathname.includes('/auditoria');
+
+  const handlePillarClick = (pillarId: AuraPillar) => {
+    setActivePillar(pillarId);
+    if (pillarId === 'marketplace') {
+      navigate('/app/explorar');
+    } else if (pillarId === 'business') {
+      navigate('/business/dashboard');
+    } else if (pillarId === 'core') {
+      navigate('/superadmin');
+    }
+  };
 
   const pillars = [
     {
@@ -30,7 +45,7 @@ export const EcosystemBar: React.FC<EcosystemBarProps> = ({ className = '', cond
       label: 'Aura App',
       tagline: 'Marketplace & Descoberta',
       icon: ShoppingBag,
-      badge: 'iFood da Estética',
+      badge: 'Consumidor',
       activeGradient: 'from-amber-600 to-rose-600 text-white shadow-md shadow-rose-900/20',
       activeBorder: 'border-amber-400/40',
     },
@@ -39,16 +54,16 @@ export const EcosystemBar: React.FC<EcosystemBarProps> = ({ className = '', cond
       label: 'Aura Business',
       tagline: 'SaaS de Gestão da Clínica',
       icon: Briefcase,
-      badge: currentBusiness?.name ? currentBusiness.name.split(' ')[0] : 'SaaS',
+      badge: currentBusiness?.name ? currentBusiness.name.split(' ')[0] : 'Gestão',
       activeGradient: 'from-[#2D2725] to-[#4A3E39] text-[#F5EBE1] shadow-md shadow-black/20',
       activeBorder: 'border-[#8F8278]/40',
     },
     {
       id: 'core' as AuraPillar,
       label: 'Aura Core',
-      tagline: 'Governança & Rede Root',
+      tagline: 'Cockpit Master & Rede',
       icon: Shield,
-      badge: 'Plataforma',
+      badge: 'Master',
       activeGradient: 'from-rose-600 to-slate-900 text-white shadow-md shadow-rose-900/30',
       activeBorder: 'border-rose-500/40',
       adminOnly: true,
@@ -70,28 +85,28 @@ export const EcosystemBar: React.FC<EcosystemBarProps> = ({ className = '', cond
             </span>
             <span className="hidden md:inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
             <span className="hidden md:inline-block text-[11px] text-[#A6998E] font-medium">
-              Ecossistema Integrado de Beleza & Estética
+              Ecossistema Integrado • {userProfile?.name || 'Augusto (Dev Geral)'}
             </span>
           </div>
 
-          <div className="inline-flex sm:hidden items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 text-[10px] font-semibold">
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 text-[10px] font-semibold">
             <Sparkles size={11} />
-            <span>Rede Ativa</span>
+            <span>Root Ativo</span>
           </div>
         </div>
 
-        {/* Center / Right: 3-Pillar Switcher */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#231F1D] border border-[#3A3330] w-full sm:w-auto justify-center">
+        {/* Center / Right: 3-Pillar Switcher + Auditoria Total */}
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#231F1D] border border-[#3A3330] w-full sm:w-auto justify-center flex-wrap">
           {visiblePillars.map((pillar) => {
             const Icon = pillar.icon;
-            const isActive = activePillar === pillar.id;
+            const isActive = !isAuditoriaActive && activePillar === pillar.id;
 
             return (
               <button
                 key={pillar.id}
                 type="button"
-                onClick={() => setActivePillar(pillar.id)}
-                className={`group flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                onClick={() => handlePillarClick(pillar.id)}
+                className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   isActive
                     ? `bg-gradient-to-r ${pillar.activeGradient} border ${pillar.activeBorder}`
                     : 'text-[#A6998E] hover:text-white hover:bg-white/5'
@@ -114,6 +129,29 @@ export const EcosystemBar: React.FC<EcosystemBarProps> = ({ className = '', cond
               </button>
             );
           })}
+
+          {/* Local de Auditoria Total (Acesso Exclusivo Augusto) */}
+          {isPlatformAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                setActivePillar('core');
+                navigate('/auditoria');
+              }}
+              className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                isAuditoriaActive
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-800 text-white shadow-md border border-amber-400/50'
+                  : 'text-amber-300 hover:text-white hover:bg-amber-500/10 border border-amber-500/30'
+              }`}
+              title="Central de Auditoria Total do Sistema"
+            >
+              <History size={14} className={isAuditoriaActive ? 'animate-spin' : 'text-amber-400'} />
+              <span className="whitespace-nowrap font-bold">Auditoria Total</span>
+              <span className="hidden lg:inline-block text-[9px] uppercase px-1.5 py-0.2 rounded font-bold bg-amber-400/20 text-amber-200">
+                Logs
+              </span>
+            </button>
+          )}
 
           {isPlatformAdmin && (
             <button

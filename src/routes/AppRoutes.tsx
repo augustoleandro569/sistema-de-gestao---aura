@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useBusiness } from '../core/BusinessContext';
+import { useLayout } from '../layouts/LayoutContext';
 import { AuraAppLayout, AuraBusinessLayout } from './AppGuard';
 import { LandingPortal } from '../pages/auth/LandingPortal';
 import { AuraConsumerGateway } from '../pages/auth/AuraConsumerGateway';
@@ -39,6 +40,7 @@ import { ReportsView } from '../components/views/ReportsView';
 import { SettingsView } from '../components/views/SettingsView';
 import { UserManagement } from '../pages/admin/UserManagement';
 import { UnitManagement } from '../pages/admin/UnitManagement';
+import { CadastroView } from '../components/views/CadastroView';
 import { SkeletonApp } from '../components/common/SkeletonApp';
 
 /**
@@ -51,6 +53,25 @@ const BusinessLandingWrapper: React.FC = () => {
     <BusinessLanding
       businessSlug={slug}
       onBackToApp={() => navigate('/app/explorar')}
+    />
+  );
+};
+
+/**
+ * Wrapper para Vitrine da Loja (Somente a Vitrine Pública com retorno ao Cockpit)
+ */
+const PartnerVitrineWrapper: React.FC = () => {
+  const { currentBusiness } = useBusiness();
+  const navigate = useNavigate();
+  const layout = useLayout();
+
+  return (
+    <BusinessLanding
+      businessSlug={currentBusiness?.slug || 'sublime-estetica'}
+      onBackToApp={() => {
+        layout.setCurrentTab('dashboard');
+        navigate('/business/dashboard');
+      }}
     />
   );
 };
@@ -74,6 +95,8 @@ export const AppRoutes: React.FC = () => {
     return (
       <Routes>
         <Route path="/perfil/:slug" element={<BusinessLandingWrapper />} />
+        <Route path="/vitrine" element={<PartnerVitrineWrapper />} />
+        <Route path="/loja" element={<PartnerVitrineWrapper />} />
         <Route path="/gateway" element={<Gateway />} />
         <Route path="/login" element={<Gateway />} />
         <Route path="/portal" element={<Gateway />} />
@@ -94,10 +117,112 @@ export const AppRoutes: React.FC = () => {
     );
   }
 
-  // 2. ROOT / PLATFORM ADMIN (Cockpit Master)
-  if (userProfile?.role === 'PLATFORM_ADMIN') {
+  // 2. ROOT / PLATFORM ADMIN (Augusto Leandro - Desenvolvedor Geral com Acesso a Todas as Abas e Auditoria Total)
+  if (
+    userProfile?.role === 'PLATFORM_ADMIN' ||
+    userProfile?.is_root ||
+    userProfile?.email?.toLowerCase() === 'augustoleandro569@gmail.com'
+  ) {
     return (
       <Routes>
+        {/* Cockpit Master & Central de Auditoria Total */}
+        <Route
+          path="/superadmin"
+          element={
+            <div className="min-h-screen bg-[#0F1115] text-slate-300 flex flex-col font-sans">
+              <PlatformCockpit />
+            </div>
+          }
+        />
+        <Route
+          path="/cockpit"
+          element={
+            <div className="min-h-screen bg-[#0F1115] text-slate-300 flex flex-col font-sans">
+              <PlatformCockpit />
+            </div>
+          }
+        />
+        <Route
+          path="/auditoria"
+          element={
+            <div className="min-h-screen bg-[#0F1115] text-slate-300 flex flex-col font-sans">
+              <PlatformCockpit defaultTab="logs" />
+            </div>
+          }
+        />
+        <Route
+          path="/superadmin/auditoria"
+          element={
+            <div className="min-h-screen bg-[#0F1115] text-slate-300 flex flex-col font-sans">
+              <PlatformCockpit defaultTab="logs" />
+            </div>
+          }
+        />
+
+        {/* Augusto: Acesso Total ao Universo Consumidor (Aura App) */}
+        <Route
+          path="/app/*"
+          element={
+            <AuraAppLayout>
+              <Routes>
+                <Route index element={<ClientHub />} />
+                <Route path="explorar" element={<SocialFeed />} />
+                <Route path="feed" element={<SocialFeed />} />
+                <Route path="mapa" element={<NearbyMap />} />
+                <Route path="perfil" element={<LoyaltyProfile />} />
+                <Route path="horarios" element={<LoyaltyProfile />} />
+                <Route path="*" element={<ClientHub />} />
+              </Routes>
+            </AuraAppLayout>
+          }
+        />
+        <Route path="/marketplace" element={<Navigate to="/app/explorar" replace />} />
+        <Route path="/marketplace/*" element={<Navigate to="/app/explorar" replace />} />
+
+        {/* Augusto: Acesso Total ao Universo Empreendedor (Aura Business - Gestão) */}
+        <Route
+          path="/business/*"
+          element={
+            <AuraBusinessLayout>
+              <Routes>
+                <Route index element={<DashboardDRE />} />
+                <Route path="dashboard" element={<DashboardDRE />} />
+                <Route path="estoque" element={<InventoryManagement />} />
+                <Route path="agenda" element={<AppointmentsModule />} />
+                <Route path="agendamentos" element={<AppointmentsModule />} />
+                <Route path="financeiro" element={<FinanceModule />} />
+                <Route path="precificacao" element={<PricingModule />} />
+                <Route path="whatsapp" element={<WhatsAppModule />} />
+                <Route path="automacoes" element={<WhatsAppModule />} />
+                <Route path="marketing" element={<MarketingManager />} />
+                <Route path="conteudos" element={<MarketingManager />} />
+                <Route path="clientes" element={<ClientsView />} />
+                <Route path="servicos" element={<ServicesView />} />
+                <Route path="vitrine" element={<PartnerVitrineWrapper />} />
+                <Route path="loja" element={<PartnerVitrineWrapper />} />
+                <Route path="profissionais" element={<ProfessionalsView />} />
+                <Route path="avaliacoes" element={<ReviewsView />} />
+                <Route path="relatorios" element={<ReportsView />} />
+                <Route path="configuracoes" element={<SettingsView />} />
+                <Route path="usuarios" element={<UserManagement />} />
+                <Route path="acessos" element={<UserManagement />} />
+                <Route path="unidades" element={<UnitManagement />} />
+                <Route path="cadastro" element={<CadastroView />} />
+                <Route path="*" element={<DashboardDRE />} />
+              </Routes>
+            </AuraBusinessLayout>
+          }
+        />
+
+        {/* Rota padrão para Augusto */}
+        <Route
+          path="/"
+          element={
+            <div className="min-h-screen bg-[#0F1115] text-slate-300 flex flex-col font-sans">
+              <PlatformCockpit />
+            </div>
+          }
+        />
         <Route
           path="*"
           element={
@@ -143,6 +268,16 @@ export const AppRoutes: React.FC = () => {
           <Route path="/portal" element={<Navigate to="/app/perfil" replace />} />
           <Route path="/portal/*" element={<Navigate to="/app/perfil" replace />} />
 
+          {/* Bloqueio estrito de gestão e superadmin para Consumidor */}
+          <Route path="/business" element={<Navigate to="/app/explorar" replace />} />
+          <Route path="/business/*" element={<Navigate to="/app/explorar" replace />} />
+          <Route path="/superadmin" element={<Navigate to="/app/explorar" replace />} />
+          <Route path="/superadmin/*" element={<Navigate to="/app/explorar" replace />} />
+          <Route path="/cockpit" element={<Navigate to="/app/explorar" replace />} />
+          <Route path="/cockpit/*" element={<Navigate to="/app/explorar" replace />} />
+          <Route path="/auditoria" element={<Navigate to="/app/explorar" replace />} />
+          <Route path="/auditoria/*" element={<Navigate to="/app/explorar" replace />} />
+
           {/* Fallback do Consumidor para o Hub */}
           <Route path="*" element={<ClientHub />} />
         </Routes>
@@ -150,7 +285,7 @@ export const AppRoutes: React.FC = () => {
     );
   }
 
-  // 🏢 UNIVERSO EMPREENDEDOR (AURA BUSINESS - Gestão)
+  // 🏢 UNIVERSO EMPREENDEDOR (AURA BUSINESS - SOMENTE GESTÃO)
   return (
     <AuraBusinessLayout>
       <Routes>
@@ -179,6 +314,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="/business/automacoes" element={<WhatsAppModule />} />
 
         <Route path="marketing" element={<MarketingManager />} />
+        <Route path="conteudos" element={<MarketingManager />} />
         <Route path="/business/marketing" element={<MarketingManager />} />
         <Route path="/business/conteudos" element={<MarketingManager />} />
 
@@ -187,6 +323,12 @@ export const AppRoutes: React.FC = () => {
 
         <Route path="servicos" element={<ServicesView />} />
         <Route path="/business/servicos" element={<ServicesView />} />
+
+        <Route path="vitrine" element={<PartnerVitrineWrapper />} />
+        <Route path="/business/vitrine" element={<PartnerVitrineWrapper />} />
+        <Route path="/vitrine" element={<PartnerVitrineWrapper />} />
+        <Route path="/loja" element={<PartnerVitrineWrapper />} />
+        <Route path="/business/loja" element={<PartnerVitrineWrapper />} />
 
         <Route path="profissionais" element={<ProfessionalsView />} />
         <Route path="/business/profissionais" element={<ProfessionalsView />} />
@@ -201,17 +343,27 @@ export const AppRoutes: React.FC = () => {
         <Route path="/business/configuracoes" element={<SettingsView />} />
 
         <Route path="usuarios" element={<UserManagement />} />
+        <Route path="acessos" element={<UserManagement />} />
         <Route path="/business/usuarios" element={<UserManagement />} />
         <Route path="/business/acessos" element={<UserManagement />} />
 
         <Route path="unidades" element={<UnitManagement />} />
         <Route path="/business/unidades" element={<UnitManagement />} />
 
-        <Route path="marketplace" element={<Navigate to="/app/explorar" replace />} />
-        <Route path="/marketplace" element={<Navigate to="/app/explorar" replace />} />
+        <Route path="cadastro" element={<CadastroView />} />
+        <Route path="/business/cadastro" element={<CadastroView />} />
 
-        {/* Bloqueio de rotas do consumidor no ambiente empreendedor */}
+        {/* Bloqueio estrito de consumidor e superadmin no ambiente de gestão do parceiro */}
+        <Route path="/app" element={<Navigate to="/business/dashboard" replace />} />
         <Route path="/app/*" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/marketplace" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/marketplace/*" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/superadmin" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/superadmin/*" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/cockpit" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/cockpit/*" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/auditoria" element={<Navigate to="/business/dashboard" replace />} />
+        <Route path="/auditoria/*" element={<Navigate to="/business/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/business/dashboard" replace />} />
       </Routes>
     </AuraBusinessLayout>

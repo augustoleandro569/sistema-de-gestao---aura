@@ -14,12 +14,20 @@ export const useModuleAccess = (moduleId: string) => {
   const { userProfile } = useAuth();
   const { activeModules, businessStatus, currentBusiness, platformModules, activateModuleForCurrent, isSuperAdminMode } = useBusiness();
 
-  // REGRA DE OURO: Se for PLATFORM_ADMIN, o acesso é VITALÍCIO e IRRESTRITO
-  const isDeveloper = userProfile?.role === 'PLATFORM_ADMIN' || isSuperAdminMode;
+  // REGRA DE OURO: Se for PLATFORM_ADMIN, Administrador, Parceiro ou Enterprise, acesso irrestrito
+  const isDeveloper =
+    userProfile?.role === 'PLATFORM_ADMIN' ||
+    userProfile?.role === 'ADMIN' ||
+    userProfile?.role === 'OWNER' ||
+    userProfile?.role === 'MANAGER' ||
+    userProfile?.email?.toLowerCase() === 'parceiro@aura.com.br' ||
+    currentBusiness?.plan_type === 'enterprise' ||
+    currentBusiness?.planType === 'enterprise' ||
+    isSuperAdminMode;
   const currentStatus = businessStatus || currentBusiness?.status || 'active';
 
   // O acesso é liberado se:
-  // 1. O usuário for o Desenvolvedor (Bypass)
+  // 1. O usuário tiver privilégios de gestão / plataforma
   // 2. OU o módulo estiver ativo E a clínica estiver com status 'active'
   const hasAccess = isDeveloper || (activeModules.includes(moduleId) && currentStatus === 'active');
 

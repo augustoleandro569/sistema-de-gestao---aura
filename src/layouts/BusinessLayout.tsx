@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
@@ -41,6 +42,8 @@ interface BusinessLayoutProps {
 }
 
 export const BusinessLayout: React.FC<BusinessLayoutProps> = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { currentTab, setCurrentTab, setActivePillar, openNewAppointment, openSearch } = useLayout();
   const { userProfile, signOut } = useAuth();
   const { currentBusiness, hasAccessToModule, setPublicProfileSlug } = useBusiness();
@@ -53,14 +56,71 @@ export const BusinessLayout: React.FC<BusinessLayoutProps> = ({ children }) => {
   const activeUnitId = dataService.getActiveUnitId();
   const activeUnit = units.find(u => u.id === activeUnitId) || units[0];
 
+  const isPlatformAdmin =
+    userProfile?.role === 'PLATFORM_ADMIN' ||
+    userProfile?.email?.toLowerCase() === 'augustoleandro569@gmail.com' ||
+    userProfile?.email?.toLowerCase() === 'augusto.leandro569@gmail.com' ||
+    userProfile?.email?.toLowerCase() === 'dev@aura.com.br' ||
+    Boolean(userProfile?.is_root);
+
+  const isBusinessAdmin =
+    isPlatformAdmin ||
+    userProfile?.role === 'ADMIN' ||
+    userProfile?.role === 'OWNER' ||
+    userProfile?.role === 'MANAGER' ||
+    userProfile?.email?.toLowerCase() === 'parceiro@aura.com.br' ||
+    userProfile?.email?.toLowerCase() === 'camila@sublimeestetica.com.br';
+
+  // Sincroniza a aba ativa visualmente com a URL atual
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.startsWith('/business/')) {
+      const segment = path.replace('/business/', '').split('/')[0];
+      if (segment) {
+        let mappedTab: NavItemKey = segment as NavItemKey;
+        if (segment === 'usuarios' || segment === 'acessos') mappedTab = 'acessos';
+        if (segment === 'marketing' || segment === 'conteudos') mappedTab = 'conteudos';
+        if (segment === 'agendamentos') mappedTab = 'agenda';
+        if (segment === 'automacoes') mappedTab = 'whatsapp';
+        if (mappedTab !== currentTab) {
+          setCurrentTab(mappedTab);
+        }
+      }
+    }
+  }, [location.pathname]);
+
   const handleNavClick = (tab: NavItemKey, moduleId?: string) => {
-    if (moduleId && !hasAccessToModule(moduleId)) {
+    if (!isBusinessAdmin && moduleId && !hasAccessToModule(moduleId)) {
       setSelectedUpgradeModule(moduleId);
       setUpgradeModalOpen(true);
       return;
     }
     setCurrentTab(tab);
     setMobileMenuOpen(false);
+
+    // Mapeamento de rotas para navegação imediata no React Router
+    const routeMap: Record<string, string> = {
+      dashboard: 'dashboard',
+      agenda: 'agenda',
+      clientes: 'clientes',
+      servicos: 'servicos',
+      estoque: 'estoque',
+      precificacao: 'precificacao',
+      financeiro: 'financeiro',
+      conteudos: 'conteudos',
+      whatsapp: 'whatsapp',
+      avaliacoes: 'avaliacoes',
+      vitrine: 'vitrine',
+      acessos: 'acessos',
+      unidades: 'unidades',
+      configuracoes: 'configuracoes',
+      relatorios: 'relatorios',
+      profissionais: 'profissionais',
+      cadastro: 'cadastro',
+    };
+
+    const targetRoute = routeMap[tab] || (tab as string);
+    navigate(`/business/${targetRoute}`);
   };
 
   const navSections = [
@@ -112,10 +172,22 @@ export const BusinessLayout: React.FC<BusinessLayoutProps> = ({ children }) => {
     },
   ];
 
+  // Permita a visualização somente da vitrine de loja (Modo Somente Vitrine)
+  const isVitrineOnly = currentTab === 'vitrine' || location.pathname.endsWith('/vitrine') || location.pathname.endsWith('/loja');
+
+  if (isVitrineOnly) {
+    return (
+      <div className="min-h-screen bg-white text-[#3A3A3A] flex flex-col font-sans">
+        {/* Visualização isolada e pura da vitrine de loja pública */}
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FDFCFB] text-[#3A3A3A] flex flex-col font-sans">
-      {/* Ecosystem Switcher Bar */}
-      <EcosystemBar />
+      {/* Ecosystem Switcher Bar - SOMENTE para Platform Admin / Augusto */}
+      {isPlatformAdmin && <EcosystemBar />}
 
       {/* Mobile Top Bar */}
       <div className="md:hidden sticky top-0 bg-[#F9F7F5]/90 backdrop-blur-md text-[#3A3A3A] z-40 px-4 py-3 flex items-center justify-between border-b border-[#F1EBE7]">
@@ -138,7 +210,7 @@ export const BusinessLayout: React.FC<BusinessLayoutProps> = ({ children }) => {
       <div className="flex flex-1 relative">
         {/* SIDEBAR DE GESTÃO COMPLETA (A "TORRE DE COMANDO" LUMINOUS LUXURY) */}
         <aside
-          className={`fixed inset-y-0 left-0 top-[41px] z-30 w-64 bg-[#F9F7F5]/90 backdrop-blur-xl text-[#3A3A3A] border-r border-[#F1EBE7] flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 ${isPlatformAdmin ? 'top-[41px]' : 'top-0'} z-30 w-64 bg-[#F9F7F5]/90 backdrop-blur-xl text-[#3A3A3A] border-r border-[#F1EBE7] flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
@@ -183,7 +255,7 @@ export const BusinessLayout: React.FC<BusinessLayoutProps> = ({ children }) => {
                 {section.items.map(item => {
                   const Icon = item.icon;
                   const isActive = currentTab === item.key;
-                  const isLocked = item.moduleId ? !hasAccessToModule(item.moduleId) : false;
+                  const isLocked = isBusinessAdmin ? false : (item.moduleId ? !hasAccessToModule(item.moduleId) : false);
                   return (
                     <button
                       key={item.key}
@@ -229,6 +301,7 @@ export const BusinessLayout: React.FC<BusinessLayoutProps> = ({ children }) => {
                   setPublicProfileSlug(currentBusiness.slug);
                 }
                 setCurrentTab('vitrine');
+                navigate('/business/vitrine');
               }}
               className="w-full p-2.5 rounded-2xl bg-white border border-[#F1EBE7] hover:border-[#EAD7D1] text-left transition-all group cursor-pointer shadow-2xs"
             >
@@ -284,7 +357,7 @@ export const BusinessLayout: React.FC<BusinessLayoutProps> = ({ children }) => {
         {/* CONTAINER PRINCIPAL DO BUSINESS */}
         <div className="flex-1 md:ml-64 flex flex-col min-w-0">
           {/* Header Superior Administrativo (VERSÃO PURIFICADA - SEM RUÍDO COGNITIVO) */}
-          <header className="sticky top-[41px] bg-white/80 backdrop-blur-md border-b border-[#F1EBE7] z-10 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+          <header className={`sticky ${isPlatformAdmin ? 'top-[41px]' : 'top-0'} bg-white/80 backdrop-blur-md border-b border-[#F1EBE7] z-10 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4`}>
             <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
               {/* Mobile Menu Toggle */}
               <button

@@ -12,7 +12,11 @@ import {
   AlertCircle,
   ChevronRight,
   ShieldCheck,
-  X
+  X,
+  Shield,
+  ShoppingBag,
+  Building2,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLayout } from '../../layouts/LayoutContext';
@@ -179,6 +183,39 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
     }
   };
 
+  const handleQuickLogin = async (userEmail: string, userPass: string = '123456') => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await handleAuraSignIn(userEmail, userPass);
+      if (!result.success || !result.profile) {
+        throw new Error(result.error || 'Credenciais inválidas.');
+      }
+
+      await signInWithCredentials(userEmail, userPass);
+
+      if (result.role === 'PLATFORM_ADMIN') {
+        layout.setActivePillar('core');
+        layout.setCurrentTab('marketplace');
+      } else if (result.role === 'ADMIN' || result.role === 'OWNER') {
+        layout.setActivePillar('business');
+        layout.setCurrentTab('dashboard');
+      } else {
+        layout.setActivePillar('marketplace');
+        layout.setCurrentTab('marketplace');
+      }
+
+      if (onSuccess) onSuccess();
+      navigate(result.redirectUrl || (result.role === 'PLATFORM_ADMIN' ? '/superadmin' : result.role === 'ADMIN' ? '/business/dashboard' : '/app/explorar'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      setError(err?.message || 'Erro ao autenticar.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fillQuickAccount = (emailVal: string, passVal: string = '123456') => {
     setView('login');
     setIdentifier(emailVal);
@@ -260,7 +297,6 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
           <AuraLoaderV3 message="Validando credenciais e perfil..." />
         </div>
       ) : view === 'login' ? (
-        /* FORMULÁRIO DE LOGIN */
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-aura-taupe uppercase tracking-wider flex items-center gap-1.5">
@@ -313,35 +349,62 @@ export const AuthPortal: React.FC<AuthPortalProps> = ({
             <ChevronRight size={16} />
           </button>
 
-          {/* ACESSO RÁPIDO PARA TESTE & AMBIENTES */}
-          <div className="pt-2 border-t border-aura-linen/60">
-            <p className="text-[10px] font-bold text-aura-taupe uppercase tracking-wider mb-2 text-center">
-              Acesso Rápido de Teste (1-Clique):
-            </p>
+          {/* ACESSO DE DEMONSTRAÇÃO SUTIL E RESERVADO */}
+          <div className="pt-3.5 border-t border-aura-linen/60">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <span className="text-[10px] text-aura-taupe/80 uppercase tracking-wider font-semibold">
+                Perfis de Demonstração:
+              </span>
+              <span className="text-[9px] text-aura-taupe/60 font-mono">1-clique</span>
+            </div>
+
             <div className="grid grid-cols-3 gap-1.5">
+              {/* 1. Augusto (Desenvolvedor Geral) */}
               <button
                 type="button"
-                onClick={() => fillQuickAccount('augustoleandro569@gmail.com', '123456')}
-                className="p-2 rounded-xl bg-aura-pearl hover:bg-aura-linen/70 border border-aura-linen text-left transition-colors cursor-pointer"
+                onClick={() => handleQuickLogin('augustoleandro569@gmail.com', 'root')}
+                className="py-2 px-2.5 rounded-xl bg-aura-pearl/80 hover:bg-white border border-aura-linen/90 hover:border-aura-taupe/40 text-left transition-all cursor-pointer group"
+                title="Augusto Leandro (Desenvolvedor Geral) • Acesso Total e Auditoria"
               >
-                <div className="text-[10px] font-bold text-aura-charcoal truncate">Augusto L.</div>
-                <div className="text-[9px] text-aura-rose font-bold truncate">Root / Dev</div>
+                <div className="text-[11px] font-bold text-aura-charcoal truncate flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                  <span className="truncate">Augusto</span>
+                </div>
+                <div className="text-[9px] text-rose-700/80 font-medium truncate mt-0.5">
+                  Dev • Auditoria
+                </div>
               </button>
+
+              {/* 2. Usuário Genérico - Consumidor */}
               <button
                 type="button"
-                onClick={() => fillQuickAccount('camila@sublimeestetica.com.br', '123456')}
-                className="p-2 rounded-xl bg-aura-pearl hover:bg-aura-linen/70 border border-aura-linen text-left transition-colors cursor-pointer"
+                onClick={() => handleQuickLogin('consumidor@aura.com.br', '123')}
+                className="py-2 px-2.5 rounded-xl bg-aura-pearl/80 hover:bg-white border border-aura-linen/90 hover:border-aura-taupe/40 text-left transition-all cursor-pointer group"
+                title="Usuário Genérico • Somente App do Consumidor"
               >
-                <div className="text-[10px] font-bold text-aura-charcoal truncate">Dra. Camila</div>
-                <div className="text-[9px] text-aura-taupe truncate">Parceiro</div>
+                <div className="text-[11px] font-bold text-aura-charcoal truncate flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <span className="truncate">Consumidor</span>
+                </div>
+                <div className="text-[9px] text-aura-taupe truncate mt-0.5">
+                  Somente App
+                </div>
               </button>
+
+              {/* 3. Usuário Genérico - Parceiro */}
               <button
                 type="button"
-                onClick={() => fillQuickAccount('dev@aura.com.br', '123456')}
-                className="p-2 rounded-xl bg-aura-pearl hover:bg-aura-linen/70 border border-aura-linen text-left transition-colors cursor-pointer"
+                onClick={() => handleQuickLogin('parceiro@aura.com.br', '123')}
+                className="py-2 px-2.5 rounded-xl bg-aura-pearl/80 hover:bg-white border border-aura-linen/90 hover:border-aura-taupe/40 text-left transition-all cursor-pointer group"
+                title="Usuário Genérico • Somente Sistema de Gestão"
               >
-                <div className="text-[10px] font-bold text-aura-charcoal truncate">Dev Aura</div>
-                <div className="text-[9px] text-aura-taupe truncate">Root Admin</div>
+                <div className="text-[11px] font-bold text-aura-charcoal truncate flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-600 shrink-0" />
+                  <span className="truncate">Parceiro</span>
+                </div>
+                <div className="text-[9px] text-aura-taupe truncate mt-0.5">
+                  Somente Gestão
+                </div>
               </button>
             </div>
           </div>

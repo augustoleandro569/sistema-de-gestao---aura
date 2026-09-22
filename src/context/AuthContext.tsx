@@ -227,19 +227,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const isCpf = cleanDigits.length === 11;
     const isEmail = raw.includes('@');
 
-    // 0. GOD MODE: Autenticação Root da Plataforma (PLATFORM_ADMIN)
+    // 0. TIPO 1: AUGUSTO (DESENVOLVEDOR GERAL - ACESSO TOTAL & AUDITORIA TOTAL)
     const rootEmails = [
-      'dev@aura.com.br',
       'augustoleandro569@gmail.com',
       'augusto.leandro569@gmail.com',
+      'augusto@aura.com.br',
+      'dev@aura.com.br',
       'admin@sublime.com',
     ];
-    if (isEmail && rootEmails.includes(raw.toLowerCase())) {
+    if (raw.toLowerCase() === 'augusto' || (isEmail && rootEmails.includes(raw.toLowerCase()))) {
       const rootProfile: UserProfile = {
-        id: 'prof-root-01',
-        name: 'Augusto Leandro (Root Platform Dev)',
-        full_name: 'Augusto Leandro (Engenheiro Chefe)',
-        email: raw.toLowerCase(),
+        id: 'prof-root-augusto',
+        name: 'Augusto (Desenvolvedor Geral)',
+        full_name: 'Augusto Leandro - Desenvolvedor Geral & Root',
+        email: 'augustoleandro569@gmail.com',
         phone: '(11) 99999-9999',
         whatsapp: '5511999999999',
         role: 'PLATFORM_ADMIN',
@@ -264,16 +265,59 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { success: true, role: 'PLATFORM_ADMIN' as UserRole, profile: rootProfile };
     }
 
-    // 1. Procurar perfil de gestão/administração se for email corporativo conhecido
-    const adminEmails = ['camila@sublimeestetica.com.br', 'renata.gestao@sublimeestetica.com.br', 'admin@sublime.com'];
-    if (isEmail && adminEmails.includes(raw.toLowerCase())) {
+    // 1. TIPO 2: USUÁRIO GENÉRICO - CONSUMIDOR (SOMENTE APP DO CONSUMIDOR)
+    const consumerEmails = ['consumidor@aura.com.br', 'cliente@aura.com.br', 'carolina.silva@aura.com'];
+    if (raw.toLowerCase() === 'consumidor' || (isEmail && consumerEmails.includes(raw.toLowerCase())) || cleanDigits === '38914276091') {
+      const consumerProfile: UserProfile = {
+        id: 'user-consumidor-01',
+        clientId: 'cli-01',
+        name: 'Usuário Genérico (Consumidor)',
+        full_name: 'Carolina Silva - Consumidora Aura App',
+        email: 'consumidor@aura.com.br',
+        phone: '(11) 98765-4321',
+        whatsapp: '(11) 98765-4321',
+        cpf: '389.142.760-91',
+        documentCpf: '389.142.760-91',
+        role: 'CLIENT',
+        registration_completed: true,
+        registrationCompleted: true,
+        lgpd_consent: true,
+        lgpdConsent: true,
+        avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+      };
+      setIsAuthenticated(true);
+      try {
+        localStorage.setItem(AUTH_STATE_KEY, 'true');
+      } catch (e) {
+        console.error(e);
+      }
+      saveProfile(consumerProfile);
+      setPortalRoute('/portal/hub');
+      return { success: true, role: 'CLIENT' as UserRole, profile: consumerProfile };
+    }
+
+    // 2. TIPO 3: USUÁRIO GENÉRICO - PARCEIRO (SOMENTE SISTEMA DE GESTÃO)
+    const adminEmails = [
+      'parceiro@aura.com.br',
+      'clinica@aura.com.br',
+      'camila@sublimeestetica.com.br',
+      'renata.gestao@sublimeestetica.com.br',
+      'gestao@aura.com.br'
+    ];
+    if (raw.toLowerCase() === 'parceiro' || (isEmail && adminEmails.includes(raw.toLowerCase()))) {
       const adminProfile: UserProfile = {
-        id: 'user-admin-01',
-        name: 'Dra. Camila Vasconcelos',
-        email: raw.toLowerCase(),
+        id: 'user-parceiro-01',
+        name: 'Usuário Genérico (Parceiro Gestão)',
+        full_name: 'Dra. Camila Vasconcelos - Gestão Parceiro',
+        email: 'parceiro@aura.com.br',
         phone: '(11) 98765-4321',
         whatsapp: '5511987654321',
+        cpf: '123.456.789-00',
         role: 'ADMIN',
+        organization_id: 'biz-sublime-01',
+        organizationId: 'biz-sublime-01',
+        business_id: 'biz-sublime-01',
+        businessId: 'biz-sublime-01',
         registration_completed: true,
         registrationCompleted: true,
         avatar_url: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&w=200&q=80',

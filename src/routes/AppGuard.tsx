@@ -247,7 +247,10 @@ export const AuraBusinessLayout: React.FC<AuraBusinessLayoutProps> = ({ children
           {layout.currentTab === 'vitrine' && (
             <BusinessLanding
               businessSlug={currentBusiness.slug}
-              onBackToApp={() => layout.setCurrentTab('dashboard')}
+              onBackToApp={() => {
+                layout.setCurrentTab('dashboard');
+                navigate('/business/dashboard');
+              }}
             />
           )}
         </>

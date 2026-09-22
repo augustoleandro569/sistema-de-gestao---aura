@@ -6,7 +6,6 @@ import { AuraLogoV3 } from '../../components/ui/AuraLogoV3';
 import { AuthPortal } from '../auth/AuthPortal';
 import { BusinessCockpit } from '../../components/marketing/CockpitPreview';
 import {
-  Search,
   Sparkles,
   MapPin,
   TrendingUp,
@@ -17,6 +16,7 @@ import {
   CheckCircle,
   CalendarCheck,
   ChevronRight,
+  ChevronDown,
   ShieldCheck,
   Award,
   ArrowRight,
@@ -89,17 +89,11 @@ export const Gateway: React.FC = () => {
   const navigate = useNavigate();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authRole, setAuthRole] = useState<'CLIENT' | 'BUSINESS'>('CLIENT');
-  const [searchQuery, setSearchQuery] = useState('');
   const [savedFavorites, setSavedFavorites] = useState<string[]>(['glow-skin']);
 
   const handleOpenAuth = (role: 'CLIENT' | 'BUSINESS' = 'CLIENT') => {
     setAuthRole(role);
     setIsAuthModalOpen(true);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleOpenAuth('CLIENT');
   };
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
@@ -155,12 +149,6 @@ export const Gateway: React.FC = () => {
             SEJA UM PARCEIRO
           </button>
           <button
-            onClick={() => handleOpenAuth('BUSINESS')}
-            className="hidden md:inline-block text-[11px] font-bold uppercase tracking-wider text-aura-taupe hover:text-aura-charcoal transition-colors px-2 py-1.5"
-          >
-            Sou Parceiro
-          </button>
-          <button
             onClick={() => handleOpenAuth('CLIENT')}
             className="bg-aura-charcoal hover:bg-black text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-soft-glow hover:scale-103 active:scale-98 transition-all cursor-pointer"
           >
@@ -169,15 +157,30 @@ export const Gateway: React.FC = () => {
         </div>
       </nav>
 
-      {/* 2. HERO: O UNIVERSO CONSUMIDOR (O QUE O AUGUSTUS ENCONTRA) */}
-      <section className="pt-36 sm:pt-44 pb-20 px-6 sm:px-8 text-center max-w-7xl mx-auto">
+      {/* 2. HERO: O UNIVERSO CONSUMIDOR COM IMAGEM DE CLÍNICA SUTIL AO FUNDO (APENAS TEXTO) */}
+      <section className="relative min-h-[calc(100vh-80px)] pt-32 sm:pt-40 pb-20 px-6 sm:px-8 flex flex-col justify-center items-center text-center overflow-hidden">
+        {/* Background Image: Clínica Estética em tons claros e sutis (quase imperceptível) */}
+        <div
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=2200&q=80')`,
+            backgroundPosition: 'center 35%',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            opacity: 0.08,
+            filter: 'grayscale(25%) contrast(85%) brightness(1.2)',
+          }}
+        />
+        {/* Gradiente suave para fusão perfeita com a paleta Aura Pearl */}
+        <div className="absolute inset-0 bg-gradient-to-b from-aura-pearl/50 via-aura-pearl/80 to-aura-pearl pointer-events-none z-0" />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="space-y-8"
+          className="relative z-10 space-y-8 max-w-5xl mx-auto my-auto"
         >
-          <div className="inline-flex items-center gap-2 bg-white px-5 py-2 rounded-full border border-aura-linen shadow-xs mx-auto">
+          <div className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-md px-5 py-2 rounded-full border border-aura-linen shadow-xs mx-auto">
             <Sparkles size={14} className="text-aura-rose" />
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-aura-charcoal">
               O Ecossistema da Beleza &amp; Bem-Estar de Elite
@@ -189,51 +192,186 @@ export const Gateway: React.FC = () => {
             <span className="italic text-aura-rose font-normal">a um toque de distância.</span>
           </h1>
 
-          <p className="text-aura-taupe text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="text-aura-taupe text-base sm:text-xl max-w-2xl mx-auto leading-relaxed font-light">
             Bem-vinda à Aura. O marketplace que une os procedimentos mais desejados do país a uma rede
             de clínicas de elite auditadas por critérios médicos.
           </p>
 
-          {/* BUSCA DE PROCEDIMENTO (IFOOD STYLE) */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="max-w-3xl mx-auto bg-white rounded-[36px] sm:rounded-[40px] p-2.5 sm:p-3 shadow-luminous border border-aura-linen flex flex-col sm:flex-row items-center gap-3 transition-all hover:border-aura-rose/50"
-          >
-            <div className="flex-1 flex items-center px-4 sm:px-6 gap-3 sm:gap-4 w-full">
-              <Search size={22} className="text-aura-taupe shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Busque por procedimento: Botox, Lavieen, Cílios, Preenchimento..."
-                className="bg-transparent border-none outline-hidden text-xs sm:text-base font-medium py-3 w-full text-aura-charcoal placeholder:text-aura-taupe/60"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-aura-charcoal hover:bg-black text-white px-9 sm:px-12 py-4 sm:py-5 rounded-[28px] sm:rounded-[32px] font-bold text-xs uppercase tracking-widest transition-all shadow-md shrink-0 cursor-pointer"
+          {/* INDICADOR ELEGANTE PARA ROLAGEM */}
+          <div className="pt-8 sm:pt-14">
+            <a
+              href="#guia-plataforma"
+              className="inline-flex flex-col items-center gap-2 text-aura-taupe hover:text-aura-charcoal transition-colors cursor-pointer group"
             >
-              Encontrar Aura
-            </button>
-          </form>
-
-          {/* CHIPS RÁPIDOS DE CATEGORIAS */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-            {['Harmonização', 'Limpeza Glow', 'Laser Lavieen', 'Bioestimuladores', 'Massagem Slim', 'Criolipólise'].map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => {
-                  setSearchQuery(cat);
-                  handleOpenAuth('CLIENT');
-                }}
-                className="px-4 py-1.5 rounded-full bg-white hover:bg-aura-charcoal hover:text-white border border-aura-linen text-aura-charcoal text-[11px] font-semibold transition-all shadow-2xs cursor-pointer"
-              >
-                {cat}
-              </button>
-            ))}
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-aura-taupe group-hover:text-aura-charcoal">
+                Role para conhecer a plataforma
+              </span>
+              <div className="w-9 h-9 rounded-full bg-white/90 border border-aura-linen shadow-2xs flex items-center justify-center text-aura-rose group-hover:border-aura-rose/50 group-hover:scale-105 transition-all">
+                <ChevronDown size={16} className="animate-bounce" />
+              </div>
+            </a>
           </div>
         </motion.div>
+      </section>
+
+      {/* 3. GUIA DA PLATAFORMA: EXIBIDO AO ROLAR A PÁGINA */}
+      <section id="guia-plataforma" className="relative py-20 sm:py-28 px-6 sm:px-8 max-w-7xl mx-auto scroll-mt-20">
+        <div className="space-y-8">
+          <div className="bg-white/90 backdrop-blur-md rounded-[32px] p-6 sm:p-10 border border-aura-linen shadow-soft-glow">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-aura-linen/80 gap-3">
+              <div>
+                <span className="text-[10px] font-bold text-aura-rose uppercase tracking-[0.25em]">
+                  Guia da Plataforma
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-aura-charcoal mt-1">
+                  O que você encontra no ecossistema Aura
+                </h2>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-aura-taupe bg-aura-pearl px-4 py-2 rounded-full border border-aura-linen w-fit">
+                <CheckCircle size={15} className="text-emerald-600" />
+                <span>Ambiente 100% Auditado &amp; Seguro</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {/* Item 1 */}
+              <div className="p-5 rounded-2xl bg-aura-pearl/40 border border-aura-linen/70 hover:border-aura-rose/40 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-aura-rose mb-3">
+                  <Sparkles size={20} />
+                </div>
+                <h3 className="font-serif font-bold text-aura-charcoal text-base">
+                  Procedimentos &amp; Protocolos
+                </h3>
+                <p className="text-xs text-aura-taupe mt-1.5 leading-relaxed">
+                  Tratamentos faciais e corporais detalhados com indicações, tempo de recuperação e cuidados pós-sessão.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {['Harmonização', 'Bioestimuladores', 'Lavieen', 'Botox'].map((tag) => (
+                    <span key={tag} className="text-[10px] bg-white px-2 py-0.5 rounded-md text-aura-charcoal border border-aura-linen font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Item 2 */}
+              <div className="p-5 rounded-2xl bg-aura-pearl/40 border border-aura-linen/70 hover:border-aura-rose/40 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-aura-rose mb-3">
+                  <ShieldCheck size={20} />
+                </div>
+                <h3 className="font-serif font-bold text-aura-charcoal text-base">
+                  Clínicas &amp; Médicos Auditados
+                </h3>
+                <p className="text-xs text-aura-taupe mt-1.5 leading-relaxed">
+                  Espaços de excelência verificados com alvará sanitário, registro profissional ativo (CRM/CRBM) e avaliações reais.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {['Alvará Sanitário', 'Corpo Clínico Ativo', 'Auditoria Médica'].map((tag) => (
+                    <span key={tag} className="text-[10px] bg-white px-2 py-0.5 rounded-md text-aura-charcoal border border-aura-linen font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Item 3 */}
+              <div className="p-5 rounded-2xl bg-aura-pearl/40 border border-aura-linen/70 hover:border-aura-rose/40 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-aura-rose mb-3">
+                  <CalendarCheck size={20} />
+                </div>
+                <h3 className="font-serif font-bold text-aura-charcoal text-base">
+                  Agendamento em Tempo Real
+                </h3>
+                <p className="text-xs text-aura-taupe mt-1.5 leading-relaxed">
+                  Disponibilidade de agenda em tempo real por unidade e especialista, com confirmação e lembretes automáticos.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {['Sem Intermediários', 'Lembretes Digitais', 'Escolha de Horário'].map((tag) => (
+                    <span key={tag} className="text-[10px] bg-white px-2 py-0.5 rounded-md text-aura-charcoal border border-aura-linen font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Item 4 */}
+              <div className="p-5 rounded-2xl bg-aura-pearl/40 border border-aura-linen/70 hover:border-aura-rose/40 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-aura-rose mb-3">
+                  <Award size={20} />
+                </div>
+                <h3 className="font-serif font-bold text-aura-charcoal text-base">
+                  Aura Club &amp; Fidelidade 10+1
+                </h3>
+                <p className="text-xs text-aura-taupe mt-1.5 leading-relaxed">
+                  Cartão fidelidade automático com acúmulo de selos a cada atendimento, cashback progressivo e benefícios VIP.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {['10+1 Pass', 'Cashback', 'Vantagens Exclusivas'].map((tag) => (
+                    <span key={tag} className="text-[10px] bg-white px-2 py-0.5 rounded-md text-aura-charcoal border border-aura-linen font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Item 5 */}
+              <div className="p-5 rounded-2xl bg-aura-pearl/40 border border-aura-linen/70 hover:border-aura-rose/40 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-aura-rose mb-3">
+                  <Store size={20} />
+                </div>
+                <h3 className="font-serif font-bold text-aura-charcoal text-base">
+                  Software de Gestão Integrada
+                </h3>
+                <p className="text-xs text-aura-taupe mt-1.5 leading-relaxed">
+                  Prontuário eletrônico seguro para parceiros, controle de fluxo de caixa, gestão de comissões e catálogo online.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {['Prontuário Digital', 'Financeiro & DRE', 'Agenda Profissional'].map((tag) => (
+                    <span key={tag} className="text-[10px] bg-white px-2 py-0.5 rounded-md text-aura-charcoal border border-aura-linen font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Item 6 */}
+              <div className="p-5 rounded-2xl bg-aura-pearl/40 border border-aura-linen/70 hover:border-aura-rose/40 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-white shadow-2xs flex items-center justify-center text-aura-rose mb-3">
+                  <Users size={20} />
+                </div>
+                <h3 className="font-serif font-bold text-aura-charcoal text-base">
+                  Resultados &amp; Casos Verificados
+                </h3>
+                <p className="text-xs text-aura-taupe mt-1.5 leading-relaxed">
+                  Feed social com publicações de antes e depois verificadas por profissionais e depoimentos autênticos.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {['Feed Clínico', 'Antes / Depois', 'Depoimentos'].map((tag) => (
+                    <span key={tag} className="text-[10px] bg-white px-2 py-0.5 rounded-md text-aura-charcoal border border-aura-linen font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SELOS DE CONFIANÇA DISCRETOS */}
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 pt-2 text-[11px] text-aura-taupe font-medium">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-aura-rose" />
+              <span>Clínicas Auditadas</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CalendarCheck size={16} className="text-aura-rose" />
+              <span>Agendamento Imediato</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-aura-rose" />
+              <span>Aura Club &amp; Cashback</span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* 2. APRESENTAÇÃO DAS VANTAGENS (VISUAL & CONTEÚDO EM CARDS MACRO) */}
@@ -394,7 +532,7 @@ export const Gateway: React.FC = () => {
               onClick={() => handleOpenAuth('CLIENT')}
               className="inline-flex items-center gap-2 text-xs font-bold text-aura-charcoal hover:text-aura-rose transition-colors uppercase tracking-wider group cursor-pointer"
             >
-              <span>Explorar Marketplace Completo</span>
+              <span>Ver Catálogo Completo</span>
               <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform text-aura-rose" />
             </button>
           </div>

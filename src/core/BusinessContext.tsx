@@ -536,6 +536,7 @@ export const BusinessProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const hasAccessToModule = (moduleId: string): boolean => {
     if (isSuperAdminMode) return true; // Super Admin has unconstrained access
+    if (currentBusiness?.plan_type === 'enterprise' || currentBusiness?.planType === 'enterprise') return true;
     return activeModules.includes(moduleId);
   };
 
